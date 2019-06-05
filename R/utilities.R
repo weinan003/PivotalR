@@ -177,12 +177,14 @@ is.db.data.frame <- function (x)
                  AND n.nspname ~ '^(<table.schema>)$'",
                  list(table.name=table.name,
                                       table.schema=table.schema)), conn.id)
-
+    
     attrnums <- .db.getQuery(
-        .format("SELECT attrnums
-                 FROM pg_catalog.gp_distribution_policy t
-                 WHERE localoid = '<oid>'", list(oid=as.numeric(oid))),
-        conn.id = conn.id)
+        .format("SELECT count(attname) 
+                 FROM pg_attribute 
+                 WHERE attnum > 0
+                 AND attrelid = '<oid>'", 
+                 list(oid = as.numeric(oid))), conn.id)
+    
     attrnums <- as.integer(arraydb.to.arrayr(attrnums, "integer"))
 
     if (is.na(attrnums)) return (NA)
